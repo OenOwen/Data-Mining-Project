@@ -1,9 +1,17 @@
-
+import numpy as np
 
 class distance_measure:
-    def __init__(self, point1, point2):
-        self.point1 = point1
-        self.point2 = point2
+    
+    def euclidean_distance(point1, point2):
+        point1, point2 = np.array(point1), np.array(point2)
+        return np.sqrt(np.sum((point1 - point2) ** 2))
 
-    def euclidean_distance(self):
-        return ((self.point1[0] - self.point2[0]) ** 2 + (self.point1[1] - self.point2[1]) ** 2) ** 0.5
+    def manhattan_distance(point1, point2):
+        point1, point2 = np.array(point1), np.array(point2)
+        return np.sum(np.abs(point1 - point2))
+
+    def circular_distance(point1, point2):
+        point1, point2 = np.array(point1), np.array(point2)
+        return np.min(np.abs(point1 - point2)), 360 - np.abs(point1 - point2)
+
+    
