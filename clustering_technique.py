@@ -19,6 +19,6 @@ class clustering:
         return dbscan.labels_, None
     
     def agglomerative(self, n_components=3, linkage='average', distance_measure=distance_measure.euclidean_distance):
-        agg = AgglomerativeClustering(n_clusters=n_components, affinity=distance_measure, linkage=linkage)
+        agg = AgglomerativeClustering(n_clusters=n_components, linkage=linkage, metric=distance_measure)
         agg.fit(self.dataset.getData())
         return agg.labels_, None

@@ -14,4 +14,5 @@ class Dataset:
         return self.data.columns.tolist()
     
     def getData(self):
-        return self.data.values.tolist()
+        return self.data.values
+    
