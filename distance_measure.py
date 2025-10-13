@@ -1,6 +1,6 @@
 import numpy as np
 
-class distance_measure_clustering:
+class distance_measure:
     
     def euclidean_distance(point1, point2):
         point1, point2 = np.array(point1), np.array(point2)
