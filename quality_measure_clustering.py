@@ -1,7 +1,7 @@
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import numpy as np
 
-class QualityMeasure:
+class quality_measure_clustering:
     def __init__(self, dataset, labels):
         # Keep a copy of the dataset and the labels produced by the clustering algorithm
         
