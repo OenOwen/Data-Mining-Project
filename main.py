@@ -12,6 +12,9 @@ print("DBSCAN Labels:", dbscan.labels_)
 clust = clustering(data)
 labels, centers = clust.dbscan(eps=0.5, min_samples=5)
 
+
+
+
 print("Labels:", labels)
 print("Centers:", centers)
 
