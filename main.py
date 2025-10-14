@@ -1,20 +1,108 @@
-import distance_measure
 from dataset import Dataset
-from clustering_technique import clustering
-from sklearn.cluster import DBSCAN
 
+# Import clustering algorithms
+from clustering_techniques.kmeans_clustering import KMeansClustering
+from clustering_techniques.dbscan_clustering import DBSCANClustering
+from clustering_techniques.agglomerative_clustering import AgglomerativeClusteringModel
+
+# Import clustering quality measures
+from quality_measure_clustering.silhouette_measure import SilhouetteMeasure
+from quality_measure_clustering.calinski_harabasz_measure import CalinskiHarabaszMeasure
+from quality_measure_clustering.davies_bouldin_measure import DaviesBouldinMeasure
+
+
+# --------------------------------------------------------------------
+# Load dataset
+# --------------------------------------------------------------------
 data = Dataset("artificial_dataset.csv")
+dataset_data = data.getData()
 
-dbscan = DBSCAN(eps=0.5, min_samples=5, metric='euclidean')
-dbscan.fit(data.getData())
-print("DBSCAN Labels:", dbscan.labels_)
+# --------------------------------------------------------------------
+# Run clustering algorithms
+# --------------------------------------------------------------------
+kmeans = KMeansClustering(data, n_components=3)
+dbscan = DBSCANClustering(data, eps=0.5, min_samples=5)
+agg = AgglomerativeClusteringModel(data, n_components=3)
 
-clust = clustering(data)
-labels, centers = clust.dbscan(eps=0.5, min_samples=5)
+# Fit and collect results
+kmeans_labels, _ = kmeans.fit()
+dbscan_labels, _ = dbscan.fit()
+agg_labels, _ = agg.fit()
 
+cluster_results = {
+    "K-Means": kmeans_labels,
+    "DBSCAN": dbscan_labels,
+    "Agglomerative": agg_labels
+}
 
+# --------------------------------------------------------------------
+# Evaluate clustering quality
+# --------------------------------------------------------------------
+print("=" * 70)
+print("Clustering Quality Evaluation")
+print("=" * 70)
+print()
 
+results_table = []
 
-print("Labels:", labels)
-print("Centers:", centers)
+for method_name, labels in cluster_results.items():
+    print(f"\n{method_name} Results:")
+    print("-" * 50)
 
+    # Initialize each quality measure
+    sil = SilhouetteMeasure(data, labels)
+    cal = CalinskiHarabaszMeasure(data, labels)
+    dav = DaviesBouldinMeasure(data, labels)
+
+    # Evaluate
+    silhouette_score = sil.evaluate()
+    calinski_score = cal.evaluate()
+    davies_score = dav.evaluate()
+
+    # Print results
+    print(f"  Silhouette Score:          {silhouette_score:.4f}")
+    print(f"  Calinski-Harabasz Score:   {calinski_score:.4f}")
+    print(f"  Davies-Bouldin Score:      {davies_score:.4f}")
+
+    results_table.append({
+        "Method": method_name,
+        "Silhouette": silhouette_score,
+        "Calinski-Harabasz": calinski_score,
+        "Davies-Bouldin": davies_score
+    })
+
+# --------------------------------------------------------------------
+# Summary Table
+# --------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("Summary Table")
+print("=" * 70)
+print(f"{'Method':<15} {'Silhouette':<20} {'Calinski-Harabasz':<25} {'Davies-Bouldin':<20}")
+print("-" * 80)
+
+for result in results_table:
+    print(f"{result['Method']:<15} "
+          f"{result['Silhouette']:<20.4f} "
+          f"{result['Calinski-Harabasz']:<25.4f} "
+          f"{result['Davies-Bouldin']:<20.4f}")
+
+print("=" * 70)
+
+# --------------------------------------------------------------------
+# Find Best Method for Each Metric
+# --------------------------------------------------------------------
+print("\nBest performing methods:")
+print("-" * 50)
+
+# For Silhouette and Calinski-Harabasz, higher = better
+# For Davies-Bouldin, lower = better
+
+best_sil = max(results_table, key=lambda x: x["Silhouette"])
+best_cal = max(results_table, key=lambda x: x["Calinski-Harabasz"])
+best_dav = min(results_table, key=lambda x: x["Davies-Bouldin"])
+
+print(f"  Silhouette Score:          {best_sil['Method']} ({best_sil['Silhouette']:.4f})")
+print(f"  Calinski-Harabasz Score:   {best_cal['Method']} ({best_cal['Calinski-Harabasz']:.4f})")
+print(f"  Davies-Bouldin Score:      {best_dav['Method']} ({best_dav['Davies-Bouldin']:.4f})")
+
+print("=" * 70)

@@ -1,5 +1,5 @@
 from sklearn.cluster import KMeans
-from .base_clustering import BaseClustering
+from clustering_techniques.base_clustering import BaseClustering
 
 class KMeansClustering(BaseClustering):
     def __init__(self, dataset, n_components=3):
