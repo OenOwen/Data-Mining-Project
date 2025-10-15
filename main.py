@@ -1,112 +1,90 @@
 from dataset import Dataset
 
-# Import clustering algorithms
-from clustering_techniques.kmeans_clustering import KMeansClustering
-from clustering_techniques.dbscan_clustering import DBSCANClustering
-from clustering_techniques.agglomerative_clustering import AgglomerativeClusteringModel
-from clustering_techniques.hierarchal_clustering import HierarchicalClustering
+# Import the new modular DR classes
+from dimensionality_reduction.pca_reduction import PCAReduction
+from dimensionality_reduction.tsne_reduction import TSNEReduction
+from dimensionality_reduction.sammon_mapping_reduction import SammonMappingReduction
+
+# Import the new modular quality measure classes
+from quality_measure_dimensionality_reduction.trustworthiness_measure import TrustworthinessMeasure
+from quality_measure_dimensionality_reduction.distance_correlation_measure import DistanceCorrelationMeasure
+from quality_measure_dimensionality_reduction.neighborhood_preservation_measure import NeighborhoodPreservationMeasure
 
 
-# Import clustering quality measures
-from quality_measure_clustering.silhouette_measure import SilhouetteMeasure
-from quality_measure_clustering.calinski_harabasz_measure import CalinskiHarabaszMeasure
-from quality_measure_clustering.davies_bouldin_measure import DaviesBouldinMeasure
-
-
-# --------------------------------------------------------------------
 # Load dataset
-# --------------------------------------------------------------------
 data = Dataset("artificial_dataset.csv")
-dataset_data = data.getData()
+original_data = data.getData()
 
-# --------------------------------------------------------------------
-# Run clustering algorithms
-# --------------------------------------------------------------------
-kmeans = KMeansClustering(data, n_components=3)
-dbscan = DBSCANClustering(data, eps=0.5, min_samples=5)
-hier_clust = HierarchicalClustering(data, n_components=3, metric='circular')
-# agg = AgglomerativeClusteringModel(data, n_components=3)
+# Apply dimensionality reduction techniques
+pca = PCAReduction(data, n_components=2)
+tsne = TSNEReduction(data, n_components=2, perplexity=10)
+sammon = SammonMappingReduction(data, n_components=2)
 
-# Fit and collect results
-kmeans_labels, _ = kmeans.fit()
-dbscan_labels, _ = dbscan.fit()
-hier_clust_labels, _ = hier_clust.fit()
-# agg_labels, _ = agg.fit()
+pca_reduced = pca.reduce()
+tsne_reduced = tsne.reduce()
+sammon_reduced = sammon.reduce()
 
-cluster_results = {
-    "K-Means": kmeans_labels,
-    "DBSCAN": dbscan_labels,
-    "Hierarchical": hier_clust_labels
+# Store results in a dictionary
+dr_results = {
+    'PCA': pca_reduced,
+    't-SNE': tsne_reduced,
+    'Sammon Mapping': sammon_reduced
 }
 
-# --------------------------------------------------------------------
-# Evaluate clustering quality
-# --------------------------------------------------------------------
+# Quality measures
 print("=" * 70)
-print("Clustering Quality Evaluation")
+print("Dimensionality Reduction Quality Evaluation")
 print("=" * 70)
 print()
 
 results_table = []
 
-for method_name, labels in cluster_results.items():
-    print(f"\n{method_name} Results:")
+for dr_name, reduced_data in dr_results.items():
+    print(f"\n{dr_name} Results:")
     print("-" * 50)
 
-    # Initialize each quality measure
-    sil = SilhouetteMeasure(data, labels)
-    cal = CalinskiHarabaszMeasure(data, labels)
-    dav = DaviesBouldinMeasure(data, labels)
+    # Instantiate each quality measure
+    trust = TrustworthinessMeasure(original_data, reduced_data, n_neighbors=5)
+    dist_corr = DistanceCorrelationMeasure(original_data, reduced_data)
+    neigh_pres = NeighborhoodPreservationMeasure(original_data, reduced_data, n_neighbors=5)
 
-    # Evaluate
-    silhouette_score = sil.evaluate()
-    calinski_score = cal.evaluate()
-    davies_score = dav.evaluate()
+    # Evaluate them
+    trustworthiness_score = trust.evaluate()
+    distance_corr_score = dist_corr.evaluate()
+    neighborhood_pres_score = neigh_pres.evaluate()
 
     # Print results
-    print(f"  Silhouette Score:          {silhouette_score:.4f}")
-    print(f"  Calinski-Harabasz Score:   {calinski_score:.4f}")
-    print(f"  Davies-Bouldin Score:      {davies_score:.4f}")
+    print(f"  Trustworthiness:           {trustworthiness_score:.4f}")
+    print(f"  Distance Correlation:      {distance_corr_score:.4f}")
+    print(f"  Neighborhood Preservation: {neighborhood_pres_score:.4f}")
 
     results_table.append({
-        "Method": method_name,
-        "Silhouette": silhouette_score,
-        "Calinski-Harabasz": calinski_score,
-        "Davies-Bouldin": davies_score
+        'Method': dr_name,
+        'Trustworthiness': trustworthiness_score,
+        'Distance Correlation': distance_corr_score,
+        'Neighborhood Preservation': neighborhood_pres_score
     })
 
-# --------------------------------------------------------------------
-# Summary Table
-# --------------------------------------------------------------------
+# Summary table
 print("\n" + "=" * 70)
 print("Summary Table")
 print("=" * 70)
-print(f"{'Method':<15} {'Silhouette':<20} {'Calinski-Harabasz':<25} {'Davies-Bouldin':<20}")
-print("-" * 80)
+print(f"{'Method':<10} {'Trustworthiness':<20} {'Dist. Correlation':<20} {'Neighb. Preservation':<20}")
+print("-" * 70)
 
 for result in results_table:
-    print(f"{result['Method']:<15} "
-          f"{result['Silhouette']:<20.4f} "
-          f"{result['Calinski-Harabasz']:<25.4f} "
-          f"{result['Davies-Bouldin']:<20.4f}")
+    print(f"{result['Method']:<10} "
+          f"{result['Trustworthiness']:<20.4f} "
+          f"{result['Distance Correlation']:<20.4f} "
+          f"{result['Neighborhood Preservation']:<20.4f}")
 
 print("=" * 70)
 
-# --------------------------------------------------------------------
-# Find Best Method for Each Metric
-# --------------------------------------------------------------------
+# Find best method for each metric
 print("\nBest performing methods:")
 print("-" * 50)
 
-# For Silhouette and Calinski-Harabasz, higher = better
-# For Davies-Bouldin, lower = better
-
-best_sil = max(results_table, key=lambda x: x["Silhouette"])
-best_cal = max(results_table, key=lambda x: x["Calinski-Harabasz"])
-best_dav = min(results_table, key=lambda x: x["Davies-Bouldin"])
-
-print(f"  Silhouette Score:          {best_sil['Method']} ({best_sil['Silhouette']:.4f})")
-print(f"  Calinski-Harabasz Score:   {best_cal['Method']} ({best_cal['Calinski-Harabasz']:.4f})")
-print(f"  Davies-Bouldin Score:      {best_dav['Method']} ({best_dav['Davies-Bouldin']:.4f})")
-
-print("=" * 70)
+metrics = ['Trustworthiness', 'Distance Correlation', 'Neighborhood Preservation']
+for metric in metrics:
+    best_method = max(results_table, key=lambda x: x[metric])
+    print(f"  {metric}: {best_method['Method']} ({best_method[metric]:.4f})")
