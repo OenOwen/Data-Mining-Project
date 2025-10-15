@@ -4,6 +4,8 @@ from dataset import Dataset
 from clustering_techniques.kmeans_clustering import KMeansClustering
 from clustering_techniques.dbscan_clustering import DBSCANClustering
 from clustering_techniques.agglomerative_clustering import AgglomerativeClusteringModel
+from clustering_techniques.hierarchal_clustering import HierarchicalClustering
+
 
 # Import clustering quality measures
 from quality_measure_clustering.silhouette_measure import SilhouetteMeasure
@@ -22,17 +24,19 @@ dataset_data = data.getData()
 # --------------------------------------------------------------------
 kmeans = KMeansClustering(data, n_components=3)
 dbscan = DBSCANClustering(data, eps=0.5, min_samples=5)
-agg = AgglomerativeClusteringModel(data, n_components=3)
+hier_clust = HierarchicalClustering(data, n_components=3, metric='circular')
+# agg = AgglomerativeClusteringModel(data, n_components=3)
 
 # Fit and collect results
 kmeans_labels, _ = kmeans.fit()
 dbscan_labels, _ = dbscan.fit()
-agg_labels, _ = agg.fit()
+hier_clust_labels, _ = hier_clust.fit()
+# agg_labels, _ = agg.fit()
 
 cluster_results = {
     "K-Means": kmeans_labels,
     "DBSCAN": dbscan_labels,
-    "Agglomerative": agg_labels
+    "Hierarchical": hier_clust_labels
 }
 
 # --------------------------------------------------------------------
