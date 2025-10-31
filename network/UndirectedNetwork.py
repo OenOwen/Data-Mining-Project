@@ -1,9 +1,12 @@
 from collections import defaultdict
+import networkx as nx
+
 
 class UndirectedNetwork:
-    def __init__(self):
+    def __init__(self, is_string: bool = False):
         self._adj = defaultdict(set)
         self._edges = set()
+        self.is_string = is_string
 
     @classmethod
     def from_edgelist(cls, path):
@@ -11,7 +14,7 @@ class UndirectedNetwork:
         with open(path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
-                if not line or line.startswith("#"):
+                if not line:
                     continue
                 parts = line.split()
                 if len(parts) < 2:
@@ -23,6 +26,25 @@ class UndirectedNetwork:
                 except ValueError:
                     u, v = u_raw, v_raw
                 g.add_edge(u, v)
+        return g
+    
+
+    @classmethod
+    def from_adjacency_matrix(cls, path):
+        g = cls()
+        with open(path, "r", encoding="utf-8") as f:
+            for i, line in enumerate(f):
+                line = line.strip()
+                if not line:
+                    continue
+                parts = line.split()
+                for j, val in enumerate(parts):
+                    try:
+                        weight = float(val)
+                    except ValueError:
+                        continue
+                    if weight != 0 and i != j:
+                        g.add_edge(i, j)
         return g
 
     def add_edge(self, u, v):
@@ -53,3 +75,9 @@ class UndirectedNetwork:
     def has_edge(self, u, v):
         a, b = (u, v) if u < v else (v, u)
         return (a, b) in self._edges
+    
+    def to_networkx(self):
+        G = nx.Graph()
+        G.add_nodes_from(self.nodes())
+        G.add_edges_from(self.edges())
+        return G
