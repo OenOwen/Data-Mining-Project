@@ -11,12 +11,11 @@ class BetweennessCentrality(BaseNodeMeasure):
     If a node has high betweenness, it often acts as a bridge between clusters.
     """
 
-    def __init__(self, network, normalize: bool = False):
+    def __init__(self, network):
         super().__init__(network)
-        self.normalize = normalize
 
     def measure(self) -> Dict[int, float]:
-        betw = betweenness_centrality(self.network.to_networkx(), normalized=self.normalize)
+        betw = betweenness_centrality(self.network.to_networkx())
         return betw
 
     def print_info(self) -> None:
