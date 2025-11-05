@@ -15,7 +15,7 @@ measures = [DistanceCorrelationMeasure, NeighborhoodPreservationMeasure, Trustwo
 
 for data_path in datasets:
     print("Dataset:", data_path)
-    dataset = Dataset(data_path)
+    dataset = Dataset(data_path).reduceData(1000)
     for reduction in reductions:
         print("\tReduction:", reduction.__name__)
         reduced_data = reduction(dataset).reduce()
