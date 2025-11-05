@@ -4,7 +4,7 @@ from .base_dimensionality_reduction import BaseDimensionalityReduction
 
 class TSNEReduction(BaseDimensionalityReduction):
 
-    def __init__(self, dataset, n_components=2, perplexity=30.0, random_state=42):
+    def __init__(self, dataset, n_components=2, perplexity=10.0, random_state=42):
         super().__init__(dataset, n_components)
         self.perplexity = perplexity
         self.random_state = random_state

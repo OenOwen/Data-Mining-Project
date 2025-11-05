@@ -2,13 +2,12 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from scipy.optimize import minimize
 from sklearn.decomposition import PCA
+from .base_dimensionality_reduction import BaseDimensionalityReduction
 
-class SammonMappingReduction:
-    def __init__(self, dataset, n_components=2, max_iter=300, tol=1e-9, random_state=None):
-        self.dataset = dataset
-        self.n_components = n_components
+class SammonMappingReduction(BaseDimensionalityReduction):
+    def __init__(self, dataset, n_components=2, max_iter=300, random_state=None):
+        super().__init__(dataset, n_components)
         self.max_iter = max_iter
-        self.tol = tol
         self.random_state = random_state
         self.reduced_data = None
 
@@ -32,8 +31,7 @@ class SammonMappingReduction:
             D_hat = squareform(pdist(Y_reshaped))
             D_hat[D_hat == 0] = 1e-9
             delta = (D - D_hat) / D
-            stress = np.sum(delta**2) / scale
-            return stress
+            return np.sum(delta ** 2) / scale
 
         def sammon_gradient(Y_flat):
             Y_reshaped = Y_flat.reshape(n_samples, self.n_components)
@@ -54,7 +52,7 @@ class SammonMappingReduction:
             Y.ravel(),
             method="L-BFGS-B",
             jac=sammon_gradient,
-            options={"maxiter": self.max_iter, "ftol": self.tol, "gtol": 1e-9},
+            options={"maxiter": self.max_iter}
         )
 
         self.reduced_data = res.x.reshape(n_samples, self.n_components)
