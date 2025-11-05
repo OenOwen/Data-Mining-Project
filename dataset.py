@@ -16,3 +16,6 @@ class Dataset:
     def getData(self):
         return self.data.values
     
+    def reduceData(self, num_samples):
+        self.data = self.data.iloc[:num_samples]
+        return self
