@@ -72,6 +72,9 @@ for dataset_name, clustering_algorithms in cluster_list.items():
 
 
 # Used for Requirements 2
+
+print("\n \nRequirements 2 - Comparison")
+print("\n===================================")
 time_list_dr = {}
 
 quality_measure_results_dr = {}

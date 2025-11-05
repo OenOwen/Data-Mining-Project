@@ -5,7 +5,7 @@
 **Step 1:**
 Choose a pipeline file that you want to run:
 ```pipeline_clustering.py```,
-```pipeline_dimensionality_reduction.py```, ```pipeline_network.py```
+```pipeline_dimensionality_reduction.py```, ```pipeline_networks.py```
 
 **Step 2 (optional):**
 If you want to change the dataset, add a new dataset-path in the dataset-list or remove some of the datasets.
