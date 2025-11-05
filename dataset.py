@@ -16,3 +16,7 @@ class Dataset:
     def getData(self):
         return self.data.values
     
+    def reduceData(self, num_samples):
+        if len(self.data) > num_samples:
+            self.data = self.data.sample(n=num_samples).sort_index()
+        return self
